@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit-1.4.xsd
+       ">
+
+    <rabbit:connection-factory
+            id="connectionFactory"
+            host="localhost"
+            port="5672"
+            requested-heartbeat="10"
+            connection-timeout="1000"
+    />
+
+
+
+    <rabbit:template id="template" connection-factory="connectionFactory" retry-template="retryTemplate"/>
+
+    <bean id="retryTemplate" class="org.springframework.retry.support.RetryTemplate">
+        <property name="backOffPolicy">
+            <bean class="org.springframework.retry.backoff.ExponentialBackOffPolicy">
+                <property name="initialInterval" value="500" />
+                <property name="multiplier" value="10.0" />
+                <property name="maxInterval" value="10000" />
+            </bean>
+        </property>
+    </bean>
+
+    <rabbit:queue id="test.queue" name="test-queue" auto-declare="true" />
+
+    <bean id="test.queue.listener" class="org.venth.mqrequiredapp.TestQueueListener" />
+
+    <rabbit:listener-container connection-factory="connectionFactory" missing-queues-fatal="false">
+        <rabbit:listener queues="test.queue" ref="test.queue.listener" method="handleTextMessage" />
+        <rabbit:listener queues="test.queue" ref="test.queue.listener" method="handleNumberMessage" />
+    </rabbit:listener-container>
+</beans>
