@@ -1,4 +1,4 @@
-MQ required app
+MQ requiring app
 =================================
 
 # Table of contents
@@ -9,7 +9,7 @@ MQ required app
 # Overview
 
 The goal of this poc is to investigate different configuration possibilities, which could help to make an application
- using mq services 
+ using mq services, even if a broker is absent. 
 
 # Scenarios
 
